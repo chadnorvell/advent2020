@@ -27,11 +27,14 @@ defmodule Advent2020 do
     complement = sum - value
 
     case Expenses.expense_report(all_values, complement, value) do
+      # We did not find two more values that produce the desired sum
       nil ->
         case rest do
           [] -> nil  # We've gone through the whole list and didn't find a match
-          _ -> day1_2_loop(all_values, rest, sum)
+          _ -> day1_2_loop(all_values, rest, sum)  # There are more values; keep trying
         end
+
+      # We found a match!
       pair_product -> pair_product * value
     end
   end
