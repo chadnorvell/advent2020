@@ -2,17 +2,23 @@ defmodule Advent2020.Expenses do
   @doc """
   Given a set of numbers and a specified sum, find the two values in the
   list that add up to the sum, and return their product, if they exist.
-  Otherwise return nil.
+  Otherwise return nil. You can provide a single value to be skipped.
 
   Runs in O(n) time and space!
   """
-  def expense_report(values, sum) do
-    product_if_sum(MapSet.new(), values, sum)
+  def expense_report(values, sum, skip \\ nil) do
+    product_if_sum(MapSet.new(), values, sum, skip)
   end
 
-  defp product_if_sum(cache, values, sum) do
+  defp product_if_sum(cache, values, sum, skip) do
     # We'll examine the first entry in the list of values.
     [ value | rest ] = values
+
+    # If the current value is one that we specified to ignore, short-
+    # circuit this iteration and move on to the next.
+    if value == skip do
+      product_if_sum(cache, rest, sum, skip)
+    end
 
     # The value that needs to added to that first entry to produce the sum.
     complement = sum - value
@@ -31,7 +37,7 @@ defmodule Advent2020.Expenses do
           [] -> nil
           _ ->
             MapSet.put(cache, value)
-            |> product_if_sum(rest, sum)
+            |> product_if_sum(rest, sum, skip)
         end
     end
   end

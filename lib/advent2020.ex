@@ -26,11 +26,7 @@ defmodule Advent2020 do
     # other values in the original list.
     complement = sum - value
 
-    # ... except that we have to exclude the current value under
-    # consideration, since it's already part of the sum.
-    all_values_without_this_one = List.delete(all_values, value)
-
-    case Expenses.expense_report(all_values_without_this_one, complement) do
+    case Expenses.expense_report(all_values, complement, value) do
       nil ->
         case rest do
           [] -> nil  # We've gone through the whole list and didn't find a match
