@@ -38,4 +38,12 @@ defmodule Advent2020 do
       pair_product -> pair_product * value
     end
   end
+
+  def day2_1() do
+    Utilities.file_to_list("./data/day2_1.txt")
+    |> Enum.map(fn line -> String.split(line, ": ") end)
+    |> Enum.map(fn [policy | [password | []]] ->
+      Passwords.check_against_policy(policy, password) end)
+    |> Enum.count(fn result -> result == true end)
+  end
 end
