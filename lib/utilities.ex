@@ -7,4 +7,11 @@ defmodule Advent2020.Utilities do
     File.read!(file_name)
     |> String.split("\n", trim: true)
   end
+
+  @doc """
+  Return the logical xor of two boolean values.
+  """
+  def xor(bool1, bool2) do
+    bool1 != bool2
+  end
 end
