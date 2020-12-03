@@ -63,4 +63,16 @@ defmodule Advent2020 do
     |> Grid.collect_in_slope(3, 1)
     |> Enum.count(fn element -> element == "#" end)
   end
+
+  def day3_2() do
+    grid = Utilities.file_to_list("./data/day3_1.txt")
+    |> Grid.from_list_of_strings()
+
+    [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
+    |> Enum.map(fn {dx, dy} ->
+      Grid.collect_in_slope(grid, dx, dy)
+      |> Enum.count(fn element -> element == "#" end)
+    end)
+    |> Enum.reduce(fn x, acc -> acc * x end)
+  end
 end
