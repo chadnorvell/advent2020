@@ -1,4 +1,4 @@
-defmodule Passwords do
+defmodule Advent2020.Passwords do
   alias Advent2020.Utilities
 
   @doc """

@@ -1,5 +1,6 @@
 defmodule Advent2020 do
   alias Advent2020.Expenses
+  alias Advent2020.Passwords
   alias Advent2020.Utilities
 
   def day1_1() do
