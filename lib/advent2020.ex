@@ -1,5 +1,6 @@
 defmodule Advent2020 do
   alias Advent2020.Expenses
+  alias Advent2020.Grid
   alias Advent2020.Passwords
   alias Advent2020.Utilities
 
@@ -54,5 +55,12 @@ defmodule Advent2020 do
     |> Enum.map(fn [policy | [password | []]] ->
       Passwords.check_against_policy_new(policy, password) end)
     |> Enum.count(fn result -> result == true end)
+  end
+
+  def day3_1() do
+    Utilities.file_to_list("./data/day3_1.txt")
+    |> Grid.from_list_of_strings()
+    |> Grid.collect_in_slope(3, 1)
+    |> Enum.count(fn element -> element == "#" end)
   end
 end
