@@ -81,6 +81,14 @@ defmodule Advent2020 do
     Utilities.file_to_list("./data/day4_1.txt", trim: false)
     |> Utilities.file_lines_to_kv_pairs(":", [" ", "\n"], "")
     |> Enum.reverse()  # Not necessary, but eases comparing to input
+    |> Enum.map(fn data -> Passport.valid?(data, skip_validation: true) end)
+    |> Enum.count(fn result -> result == true end)
+  end
+
+  def day4_2() do
+    Utilities.file_to_list("./data/day4_1.txt", trim: false)
+    |> Utilities.file_lines_to_kv_pairs(":", [" ", "\n"], "")
+    |> Enum.reverse()  # Not necessary, but eases comparing to input
     |> Enum.map(fn data -> Passport.valid? data end)
     |> Enum.count(fn result -> result == true end)
   end
