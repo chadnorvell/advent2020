@@ -1,6 +1,7 @@
 defmodule Advent2020 do
   alias Advent2020.Expenses
   alias Advent2020.Grid
+  alias Advent2020.Passport
   alias Advent2020.Password
   alias Advent2020.Utilities
 
@@ -74,5 +75,13 @@ defmodule Advent2020 do
       |> Enum.count(fn element -> element == "#" end)
     end)
     |> Enum.reduce(fn x, acc -> acc * x end)
+  end
+
+  def day4_1() do
+    Utilities.file_to_list("./data/day4_1.txt", trim: false)
+    |> Utilities.file_lines_to_kv_pairs(":", [" ", "\n"], "")
+    |> Enum.reverse()  # Not necessary, but eases comparing to input
+    |> Enum.map(fn data -> Passport.valid? data end)
+    |> Enum.count(fn result -> result == true end)
   end
 end
