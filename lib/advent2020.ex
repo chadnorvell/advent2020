@@ -1,4 +1,5 @@
 defmodule Advent2020 do
+  alias Advent2020.BoardingPass
   alias Advent2020.Expenses
   alias Advent2020.Grid
   alias Advent2020.Passport
@@ -91,5 +92,12 @@ defmodule Advent2020 do
     |> Enum.reverse()  # Not necessary, but eases comparing to input
     |> Enum.map(fn data -> Passport.valid? data end)
     |> Enum.count(fn result -> result == true end)
+  end
+
+  def day5_1() do
+    Utilities.file_to_list("./data/day5_1.txt")
+    |> Enum.map(fn pass -> BoardingPass.get_seat(pass) end)
+    |> Enum.map(fn {row, seat} -> row * 8 + seat end)
+    |> Enum.max()
   end
 end
