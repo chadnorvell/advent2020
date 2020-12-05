@@ -405,6 +405,9 @@ defmodule Advent2020.BoardingPass do
     }
   }
 
+  @max_row 127
+  @max_col 7
+
   @doc """
   Given a boarding pass seat code, return the row and column of the
   seat.
@@ -422,6 +425,32 @@ defmodule Advent2020.BoardingPass do
     case rest do
       [] -> tree[String.to_atom(current)]
       _ -> get_leaf(rest, tree[String.to_atom(current)])
+    end
+  end
+
+  @doc """
+  Return the seat ID.
+  """
+  def id({row, col}), do: row * 8 + col
+
+  @doc """
+  Find any empty seats based on boarding pass input.
+  """
+  def find_empty_seats(seats) do
+    all_seats = MapSet.new(for row <- 0..@max_row, col <- 0..@max_col, do: {row, col})
+    seats = MapSet.new(seats)
+
+    MapSet.difference(all_seats, seats)
+    |> MapSet.to_list()
+  end
+
+  def group_by_row([current | rest], acc \\ %{}) do
+    case rest do
+      [] -> acc
+      _ -> group_by_row(
+        rest,
+        Map.update(acc, elem(current, 0), [elem(current, 1)], fn xs -> [elem(current, 1) | xs] end)
+      )
     end
   end
 end

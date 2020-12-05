@@ -97,7 +97,21 @@ defmodule Advent2020 do
   def day5_1() do
     Utilities.file_to_list("./data/day5_1.txt")
     |> Enum.map(fn pass -> BoardingPass.get_seat(pass) end)
-    |> Enum.map(fn {row, seat} -> row * 8 + seat end)
+    |> Enum.map(fn pass -> BoardingPass.id(pass) end)
     |> Enum.max()
+  end
+
+  def day5_2() do
+    Utilities.file_to_list("./data/day5_1.txt")
+    |> Enum.map(fn pass -> BoardingPass.get_seat(pass) end)
+    |> BoardingPass.find_empty_seats()
+    |> BoardingPass.group_by_row()
+    |> Enum.map(fn {k, v} -> {k, v} end)
+    # If seat IDs +/- from ours are occupied, there must only be
+    # a single empty seat in the row.
+    |> Enum.filter(fn {_, cols} -> Enum.count(cols) == 1 end)
+    |> List.first()
+    |> (fn {row, [ col | []]} -> {row, col} end).()
+    |> BoardingPass.id()
   end
 end
