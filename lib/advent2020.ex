@@ -114,4 +114,12 @@ defmodule Advent2020 do
     |> (fn {row, [ col | []]} -> {row, col} end).()
     |> BoardingPass.id()
   end
+
+  def day6_1() do
+    Utilities.file_to_list("./data/day6_1.txt", trim: false)
+    |> Utilities.file_lines_to_char_sets("")
+    |> Enum.reverse()  # Not necessary, but eases comparing to input
+    |> Enum.map(fn set -> Enum.count(set) end)
+    |> Enum.reduce(fn count, sum -> sum + count end)
+  end
 end

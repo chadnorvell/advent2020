@@ -60,6 +60,48 @@ defmodule Advent2020.Utilities do
   end
 
   @doc """
+  Break a string down into its characters and return them as a MapSet.
+  """
+  def string_to_char_mapset(s) do
+    s
+    |> String.graphemes()
+    |> MapSet.new()
+  end
+
+  @doc """
+  Convert a list of strings (i.e. from a file) that contain groups of
+  characters into a list of MapSets of the characters in each group.
+  """
+  def file_lines_to_char_sets(
+    lines,
+    group_delimiter,
+    current_group \\ MapSet.new(),
+    groups \\ []
+  ) do
+    case lines do
+      # We're done.
+      [] -> groups
+      # We're not done; process the next line.
+      [ current_line | rest ] ->
+        case current_line do
+            # This line is a separator between groups.
+            # So the current group is finished and we will start a new
+            # one on the next iteration.
+            ^group_delimiter -> file_lines_to_char_sets(
+              rest, group_delimiter, MapSet.new(), [current_group | groups]
+            )
+            # This line starts or adds to a group.
+            line_with_chars -> file_lines_to_char_sets(
+              rest,
+              group_delimiter,
+              MapSet.union(current_group, string_to_char_mapset(line_with_chars)),
+              groups
+            )
+        end
+      end
+  end
+
+  @doc """
   Return the logical xor of two boolean values.
   """
   def xor(bool1, bool2) do
