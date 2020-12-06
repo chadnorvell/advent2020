@@ -159,12 +159,16 @@ defmodule Advent2020 do
 
   defp day5_2_smart_loop(list) do
     case list do
+      # Examine a bank of three sequential empty seats.
       [x, y, z | rest] ->
         if y - x != 1 and z - y != 1 do
+          # We found our seat!
           y
         else
           case rest do
+            # We didn't find any seat meeting the criteria.
             [] -> nil
+            # There are more seats to examine.
             _ -> day5_2_smart_loop([y, z | rest])
           end
         end
@@ -174,6 +178,8 @@ defmodule Advent2020 do
   def day6_1() do
     Utilities.file_to_list("./data/day6_1.txt", trim: false)
     |> Utilities.file_lines_to_char_sets("", fn current, new ->
+      # When looking at a new group of lines, start with an empty set
+      # and add any characters we find to the group set.
       current = current || MapSet.new()
       MapSet.union(current, new)
     end)
@@ -184,6 +190,15 @@ defmodule Advent2020 do
   def day6_2() do
     Utilities.file_to_list("./data/day6_1.txt", trim: false)
     |> Utilities.file_lines_to_char_sets("", fn current, new ->
+      # When looking at a group of new lines, start with the total set of all
+      # possible characters, then on each line take the intersection of the
+      # previous line's set with this line's set, to find only the common
+      # characters. (Starting with the a-z set is a little unintuitive, but an
+      # empty set won't work since the intersection of anything with an empty
+      # set is the empty set. Starting with the a-z set and intersecting it
+      # with the set from the first line is the same as initializing the
+      # analysis of the group of lines with the set resulting from the first
+      # line in the group.)
       current =
         current ||
           MapSet.new(Enum.to_list(?a..?z) |> Enum.map(fn n -> <<n>> end))
