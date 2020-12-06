@@ -3,11 +3,11 @@ defmodule Advent2020Test do
   doctest Advent2020
 
   test "day 1 part 1" do
-    assert Advent2020.day1_1() == 471019
+    assert Advent2020.day1_1() == 471_019
   end
 
   test "day 1 part 2" do
-    assert Advent2020.day1_2() == 103927824
+    assert Advent2020.day1_2() == 103_927_824
   end
 
   test "day 2 part 1" do
@@ -23,7 +23,7 @@ defmodule Advent2020Test do
   end
 
   test "day 3 part 2" do
-    assert Advent2020.day3_2() == 3898725600
+    assert Advent2020.day3_2() == 3_898_725_600
   end
 
   test "day 4 part 1" do

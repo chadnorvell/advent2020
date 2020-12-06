@@ -4,7 +4,7 @@ defmodule Advent2020.BoardingPass do
   @max_row 127
   @max_col 7
 
-  @row Utilities.list_to_bsp((for x <- 0..@max_row, do: x), :f, :b)
+  @row Utilities.list_to_bsp(for(x <- 0..@max_row, do: x), :f, :b)
   @col Utilities.list_to_bsp(for x <- 0..@max_col, do: x)
 
   @doc """
@@ -12,15 +12,16 @@ defmodule Advent2020.BoardingPass do
   seat.
   """
   def get_seat(s) do
-    {row_codes, col_codes} = s
-    |> String.downcase()
-    |> String.graphemes()
-    |> Enum.split(7)
+    {row_codes, col_codes} =
+      s
+      |> String.downcase()
+      |> String.graphemes()
+      |> Enum.split(7)
 
     {get_leaf(row_codes, @row), get_leaf(col_codes, @col)}
   end
 
-  defp get_leaf([ current | rest ], tree) do
+  defp get_leaf([current | rest], tree) do
     case rest do
       [] -> tree[String.to_atom(current)]
       _ -> get_leaf(rest, tree[String.to_atom(current)])
@@ -41,7 +42,9 @@ defmodule Advent2020.BoardingPass do
   Find any empty seats based on boarding pass input.
   """
   def find_empty_seats(seats) do
-    all_seats = MapSet.new(for row <- 0..@max_row, col <- 0..@max_col, do: {row, col})
+    all_seats =
+      MapSet.new(for row <- 0..@max_row, col <- 0..@max_col, do: {row, col})
+
     seats = MapSet.new(seats)
 
     MapSet.difference(all_seats, seats)
@@ -52,7 +55,9 @@ defmodule Advent2020.BoardingPass do
   Find any empty seats given a list of occupied seat IDs.
   """
   def find_empty_seats_by_id(seat_ids) do
-    all_seat_ids = MapSet.new(for row <- 0..@max_row, col <- 0..@max_col, do: id({row, col}))
+    all_seat_ids =
+      MapSet.new(for row <- 0..@max_row, col <- 0..@max_col, do: id({row, col}))
+
     seat_ids = MapSet.new(seat_ids)
 
     MapSet.difference(all_seat_ids, seat_ids)
@@ -61,11 +66,16 @@ defmodule Advent2020.BoardingPass do
 
   def group_by_row([current | rest], acc \\ %{}) do
     case rest do
-      [] -> acc
-      _ -> group_by_row(
-        rest,
-        Map.update(acc, elem(current, 0), [elem(current, 1)], fn xs -> [elem(current, 1) | xs] end)
-      )
+      [] ->
+        acc
+
+      _ ->
+        group_by_row(
+          rest,
+          Map.update(acc, elem(current, 0), [elem(current, 1)], fn xs ->
+            [elem(current, 1) | xs]
+          end)
+        )
     end
   end
 end

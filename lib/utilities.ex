@@ -27,34 +27,49 @@ defmodule Advent2020.Utilities do
   key-value pairs into a list of maps.
   """
   def file_lines_to_kv_pairs(
-    lines,
-    kv_delimiter,
-    pair_delimiters,
-    group_delimiter,
-    current_group \\ %{},
-    groups \\ []
-  ) do
+        lines,
+        kv_delimiter,
+        pair_delimiters,
+        group_delimiter,
+        current_group \\ %{},
+        groups \\ []
+      ) do
     case lines do
       # We're done.
-      [] -> groups
+      [] ->
+        groups
+
       # We're not done; process the next line.
-      [ current_line | rest ] ->
+      [current_line | rest] ->
         case current_line do
           # This line is a separator between groups.
           # So the current group is finished and we will start a new
           # one on the next iteration.
-          ^group_delimiter -> file_lines_to_kv_pairs(
-            rest, kv_delimiter, pair_delimiters, group_delimiter, %{}, [current_group | groups]
-          )
+          ^group_delimiter ->
+            file_lines_to_kv_pairs(
+              rest,
+              kv_delimiter,
+              pair_delimiters,
+              group_delimiter,
+              %{},
+              [current_group | groups]
+            )
+
           # This line starts or adds to a group.
-          line_with_kv -> file_lines_to_kv_pairs(
-            rest,
-            kv_delimiter,
-            pair_delimiters,
-            group_delimiter,
-            decode_kv_pairs(line_with_kv, kv_delimiter, pair_delimiters, current_group),
-            groups
-          )
+          line_with_kv ->
+            file_lines_to_kv_pairs(
+              rest,
+              kv_delimiter,
+              pair_delimiters,
+              group_delimiter,
+              decode_kv_pairs(
+                line_with_kv,
+                kv_delimiter,
+                pair_delimiters,
+                current_group
+              ),
+              groups
+            )
         end
     end
   end
@@ -73,34 +88,46 @@ defmodule Advent2020.Utilities do
   characters into a list of MapSets of the characters in each group.
   """
   def file_lines_to_char_sets(
-    lines,
-    group_delimiter,
-    mapset_merge_fn,
-    current_group \\ nil,
-    groups \\ []
-    ) do
+        lines,
+        group_delimiter,
+        mapset_merge_fn,
+        current_group \\ nil,
+        groups \\ []
+      ) do
     case lines do
       # We're done.
-      [] -> groups
+      [] ->
+        groups
+
       # We're not done; process the next line.
-      [ current_line | rest ] ->
+      [current_line | rest] ->
         case current_line do
-            # This line is a separator between groups.
-            # So the current group is finished and we will start a new
-            # one on the next iteration.
-            ^group_delimiter -> file_lines_to_char_sets(
-              rest, group_delimiter, mapset_merge_fn, nil, [current_group | groups]
-            )
-            # This line starts or adds to a group.
-            line_with_chars -> file_lines_to_char_sets(
+          # This line is a separator between groups.
+          # So the current group is finished and we will start a new
+          # one on the next iteration.
+          ^group_delimiter ->
+            file_lines_to_char_sets(
               rest,
               group_delimiter,
               mapset_merge_fn,
-              mapset_merge_fn.(current_group, string_to_char_mapset(line_with_chars)),
+              nil,
+              [current_group | groups]
+            )
+
+          # This line starts or adds to a group.
+          line_with_chars ->
+            file_lines_to_char_sets(
+              rest,
+              group_delimiter,
+              mapset_merge_fn,
+              mapset_merge_fn.(
+                current_group,
+                string_to_char_mapset(line_with_chars)
+              ),
               groups
             )
         end
-      end
+    end
   end
 
   @doc """
@@ -117,10 +144,12 @@ defmodule Advent2020.Utilities do
   """
   def list_to_bsp(list, lname \\ :l, rname \\ :r) do
     case split_list(list) do
-      [[left | []], [right | []]] -> Map.new([
-        {lname, left},
-        {rname, right}
-      ])
+      [[left | []], [right | []]] ->
+        Map.new([
+          {lname, left},
+          {rname, right}
+        ])
+
       [[_ | _] = left, [_ | _] = right] ->
         Map.new([
           {lname, list_to_bsp(left, lname, rname)},

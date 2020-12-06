@@ -12,7 +12,7 @@ defmodule Advent2020.Expenses do
 
   defp product_if_sum(cache, values, sum, skip, skip_times) do
     # We'll examine the first entry in the list of values.
-    [ value | rest ] = values
+    [value | rest] = values
 
     # If the current value is one that we specified to ignore, short-
     # circuit this iteration and move on to the next.
@@ -26,7 +26,8 @@ defmodule Advent2020.Expenses do
     case MapSet.member?(cache, complement) do
       # If the complement is present in the cache, then we've seen it
       # before, therefore it is definitely in the list of values.
-      true -> value * complement
+      true ->
+        value * complement
 
       # If not, cache this value to indicate we've seen it, and
       # continue through the list of values.
@@ -34,7 +35,9 @@ defmodule Advent2020.Expenses do
         case rest do
           # If there are no more values left, we're done, and there are no
           # two values in the original list that produce the sum.
-          [] -> nil
+          [] ->
+            nil
+
           _ ->
             MapSet.put(cache, value)
             |> product_if_sum(rest, sum, skip, skip_times)

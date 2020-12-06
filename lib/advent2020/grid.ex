@@ -27,6 +27,7 @@ defmodule Advent2020.Grid do
   """
   def get(grid, x, y) do
     y_max = tuple_size(grid) - 1
+
     if y > y_max do
       {:error, "out of bounds"}
     else
@@ -44,8 +45,11 @@ defmodule Advent2020.Grid do
   """
   def collect_in_slope(grid, dx, dy, x \\ 0, y \\ 0, proj \\ []) do
     case get(grid, x, y) do
-      {:ok, value} -> collect_in_slope(grid, dx, dy, x + dx, y + dy, [ value | proj ])
-      {:error, _} -> Enum.reverse(proj)
+      {:ok, value} ->
+        collect_in_slope(grid, dx, dy, x + dx, y + dy, [value | proj])
+
+      {:error, _} ->
+        Enum.reverse(proj)
     end
   end
 end

@@ -19,44 +19,62 @@ defmodule Advent2020.Passport do
   end
 
   def validate_year(:error, _, _, _), do: :error
+
   def validate_year(%__MODULE__{} = passport, key, min, max) do
     case parse_year(Map.fetch!(passport, key)) do
-      :error -> :error
-      year -> if year >= min and year <= max do
-        Map.update(passport, key, year, fn _ -> year end)
-      else
+      :error ->
         :error
-      end
+
+      year ->
+        if year >= min and year <= max do
+          Map.update(passport, key, year, fn _ -> year end)
+        else
+          :error
+        end
     end
   end
 
   def validate_height(:error), do: :error
+
   def validate_height(%__MODULE__{} = passport) do
     case Integer.parse(passport.hgt) do
-      :error -> :error
-      {num, units} -> case units do
-        "cm" ->
-          if num >= 150 and num <= 193 do
-            Map.update(
-              passport, :hgt, {num, "cm"}, fn _ -> {num, "cm"} end
-            )
-          else
+      :error ->
+        :error
+
+      {num, units} ->
+        case units do
+          "cm" ->
+            if num >= 150 and num <= 193 do
+              Map.update(
+                passport,
+                :hgt,
+                {num, "cm"},
+                fn _ -> {num, "cm"} end
+              )
+            else
+              :error
+            end
+
+          "in" ->
+            if num >= 59 and num <= 76 do
+              Map.update(
+                passport,
+                :hgt,
+                {num, "in"},
+                fn _ -> {num, "in"} end
+              )
+            else
+              :error
+            end
+
+          _ ->
             :error
-          end
-        "in" ->
-          if num >= 59 and num <= 76 do
-            Map.update(
-              passport, :hgt, {num, "in"}, fn _ -> {num, "in"} end
-            )
-          else
-            :error
-          end
-        _ -> :error
-      end
+        end
     end
   end
 
   def validate_hair_color(:error), do: :error
+
   def validate_hair_color(%__MODULE__{} = passport) do
     case String.match?(passport.hcl, ~r/^#[0-9a-f]{6}$/) do
       true -> passport
@@ -65,24 +83,30 @@ defmodule Advent2020.Passport do
   end
 
   def validate_eye_color(:error), do: :error
+
   def validate_eye_color(%__MODULE__{} = passport) do
     case Enum.member?(@eye_colors, passport.ecl) do
-      true -> Map.update(
-        passport,
-        :ecl,
-        String.to_atom(passport.ecl),
-        fn _ -> String.to_atom(passport.ecl)
-      end)
-      false -> :error
+      true ->
+        Map.update(
+          passport,
+          :ecl,
+          String.to_atom(passport.ecl),
+          fn _ -> String.to_atom(passport.ecl) end
+        )
+
+      false ->
+        :error
     end
   end
 
   def validate_pid(:error), do: :error
+
   def validate_pid(%__MODULE__{} = passport) do
-    is_number = case Integer.parse(passport.pid) do
-      :error -> false
-      {_, rem} -> rem == ""
-    end
+    is_number =
+      case Integer.parse(passport.pid) do
+        :error -> false
+        {_, rem} -> rem == ""
+      end
 
     case String.length(passport.pid) == 9 and is_number do
       true -> passport
