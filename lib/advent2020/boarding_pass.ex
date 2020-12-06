@@ -28,9 +28,14 @@ defmodule Advent2020.BoardingPass do
   end
 
   @doc """
-  Return the seat ID.
+  Return the seat ID given a row and seat.
   """
   def id({row, col}), do: row * 8 + col
+
+  @doc """
+  Return the row and seat given the seat ID.
+  """
+  def from_id(id), do: {div(id, 8), rem(id, 8)}
 
   @doc """
   Find any empty seats based on boarding pass input.
@@ -40,6 +45,17 @@ defmodule Advent2020.BoardingPass do
     seats = MapSet.new(seats)
 
     MapSet.difference(all_seats, seats)
+    |> MapSet.to_list()
+  end
+
+  @doc """
+  Find any empty seats given a list of occupied seat IDs.
+  """
+  def find_empty_seats_by_id(seat_ids) do
+    all_seat_ids = MapSet.new(for row <- 0..@max_row, col <- 0..@max_col, do: id({row, col}))
+    seat_ids = MapSet.new(seat_ids)
+
+    MapSet.difference(all_seat_ids, seat_ids)
     |> MapSet.to_list()
   end
 

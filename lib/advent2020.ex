@@ -115,6 +115,55 @@ defmodule Advent2020 do
     |> BoardingPass.id()
   end
 
+  # This is based on the recognition that the boarding pass data is
+  # really just a 10-bit integer (7 bits for the row and 3 bits for
+  # the seat). Converting that integer to decimal gives you the seat
+  # ID, and you can carry on from there. The BSP stuff is a bit of a
+  # red herring that leads you to implementing your own binary-to-
+  # decimal parser. Fun, but not necessary to solve the problem.
+  def day5_1_smarter(), do: day5_smart_processing() |> Enum.max()
+
+  def day5_2_smarter() do
+    day5_smart_processing()
+    |> BoardingPass.find_empty_seats_by_id()
+    |> Enum.sort(&(&1 < &2))
+    # If seat IDs +/- from ours are occupied, there must only be
+    # a single empty seat in the row. That would manifest as an
+    # empty seat N where seats N-1 and N+1 are not present in the
+    # set of empty seats.
+    |> day5_2_smart_loop()
+  end
+
+  defp day5_smart_processing() do
+    zeros = ~r/(F|L)/
+    ones = ~r/(B|R)/
+    regex_replace = fn string, regex, replacement ->
+      Regex.replace(regex, string, replacement)
+    end
+
+    Utilities.file_to_list("./data/day5_1.txt")
+    |> Enum.map(fn s -> s
+      |> regex_replace.(zeros, "0")
+      |> regex_replace.(ones, "1")
+      |> Integer.parse(2)
+      |> elem(0)
+    end)
+  end
+
+  defp day5_2_smart_loop(list) do
+    case list do
+      [ x, y, z | rest] ->
+        if (y - x != 1) and (z - y != 1) do
+          y
+        else
+          case rest do
+            [] -> nil
+            _ -> day5_2_smart_loop([y, z | rest])
+          end
+        end
+    end
+  end
+
   def day6_1() do
     Utilities.file_to_list("./data/day6_1.txt", trim: false)
     |> Utilities.file_lines_to_char_sets("", fn current, new ->
