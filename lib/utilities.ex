@@ -75,9 +75,10 @@ defmodule Advent2020.Utilities do
   def file_lines_to_char_sets(
     lines,
     group_delimiter,
-    current_group \\ MapSet.new(),
+    mapset_merge_fn,
+    current_group \\ nil,
     groups \\ []
-  ) do
+    ) do
     case lines do
       # We're done.
       [] -> groups
@@ -88,13 +89,14 @@ defmodule Advent2020.Utilities do
             # So the current group is finished and we will start a new
             # one on the next iteration.
             ^group_delimiter -> file_lines_to_char_sets(
-              rest, group_delimiter, MapSet.new(), [current_group | groups]
+              rest, group_delimiter, mapset_merge_fn, nil, [current_group | groups]
             )
             # This line starts or adds to a group.
             line_with_chars -> file_lines_to_char_sets(
               rest,
               group_delimiter,
-              MapSet.union(current_group, string_to_char_mapset(line_with_chars)),
+              mapset_merge_fn,
+              mapset_merge_fn.(current_group, string_to_char_mapset(line_with_chars)),
               groups
             )
         end

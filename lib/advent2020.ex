@@ -117,7 +117,23 @@ defmodule Advent2020 do
 
   def day6_1() do
     Utilities.file_to_list("./data/day6_1.txt", trim: false)
-    |> Utilities.file_lines_to_char_sets("")
+    |> Utilities.file_lines_to_char_sets("", fn current, new ->
+      current = current || MapSet.new()
+      MapSet.union(current, new)
+    end)
+    |> Enum.reverse()  # Not necessary, but eases comparing to input
+    |> Enum.map(fn set -> Enum.count(set) end)
+    |> Enum.reduce(fn count, sum -> sum + count end)
+  end
+
+  def day6_2() do
+    Utilities.file_to_list("./data/day6_1.txt", trim: false)
+    |> Utilities.file_lines_to_char_sets("", fn current, new ->
+      current = current || MapSet.new(
+        Enum.to_list(?a..?z) |> Enum.map(fn(n) -> <<n>> end)
+      )
+      MapSet.intersection(current, new)
+    end)
     |> Enum.reverse()  # Not necessary, but eases comparing to input
     |> Enum.map(fn set -> Enum.count(set) end)
     |> Enum.reduce(fn count, sum -> sum + count end)
