@@ -81,17 +81,16 @@ defmodule Advent2020 do
   def day4_1() do
     Utilities.file_to_list("./data/day4_1.txt", trim: false)
     |> Utilities.file_lines_to_kv_pairs(":", [" ", "\n"], "")
-    |> Enum.reverse()  # Not necessary, but eases comparing to input
-    |> Enum.map(fn data -> Passport.valid?(data, skip_validation: true) end)
+    |> Enum.map(fn data -> Passport.ok?(data) end)
     |> Enum.count(fn result -> result == true end)
   end
 
   def day4_2() do
     Utilities.file_to_list("./data/day4_1.txt", trim: false)
     |> Utilities.file_lines_to_kv_pairs(":", [" ", "\n"], "")
-    |> Enum.reverse()  # Not necessary, but eases comparing to input
-    |> Enum.map(fn data -> Passport.valid? data end)
-    |> Enum.count(fn result -> result == true end)
+    |> Enum.filter(fn data -> Passport.ok? data end)
+    |> Enum.map(fn data -> struct(Passport, data) |> Passport.validate() end)
+    |> Enum.count(fn result -> result != :error end)
   end
 
   def day5_1() do
@@ -170,7 +169,6 @@ defmodule Advent2020 do
       current = current || MapSet.new()
       MapSet.union(current, new)
     end)
-    |> Enum.reverse()  # Not necessary, but eases comparing to input
     |> Enum.map(fn set -> Enum.count(set) end)
     |> Enum.reduce(fn count, sum -> sum + count end)
   end
@@ -183,7 +181,6 @@ defmodule Advent2020 do
       )
       MapSet.intersection(current, new)
     end)
-    |> Enum.reverse()  # Not necessary, but eases comparing to input
     |> Enum.map(fn set -> Enum.count(set) end)
     |> Enum.reduce(fn count, sum -> sum + count end)
   end

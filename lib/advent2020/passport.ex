@@ -37,13 +37,17 @@ defmodule Advent2020.Passport do
       {num, units} -> case units do
         "cm" ->
           if num >= 150 and num <= 193 do
-            passport
+            Map.update(
+              passport, :hgt, {num, "cm"}, fn _ -> {num, "cm"} end
+            )
           else
             :error
           end
         "in" ->
           if num >= 59 and num <= 76 do
-            passport
+            Map.update(
+              passport, :hgt, {num, "in"}, fn _ -> {num, "in"} end
+            )
           else
             :error
           end
@@ -63,7 +67,12 @@ defmodule Advent2020.Passport do
   def validate_eye_color(:error), do: :error
   def validate_eye_color(%__MODULE__{} = passport) do
     case Enum.member?(@eye_colors, passport.ecl) do
-      true -> passport
+      true -> Map.update(
+        passport,
+        :ecl,
+        String.to_atom(passport.ecl),
+        fn _ -> String.to_atom(passport.ecl)
+      end)
       false -> :error
     end
   end
@@ -81,6 +90,10 @@ defmodule Advent2020.Passport do
     end
   end
 
+  @doc """
+  Validate the data in the passport, converting the string input data
+  to more appropriate data types where needed.
+  """
   def validate(%__MODULE__{} = passport) do
     passport
     |> validate_year(:byr, 1920, 2002)
@@ -92,17 +105,13 @@ defmodule Advent2020.Passport do
     |> validate_pid()
   end
 
-  def valid?(map, opts \\ [skip_validation: false]) do
+  @doc """
+  Check whether the passport data has all required fields.
+  """
+  def ok?(map) do
     try do
-      passport = struct!(__MODULE__, map)
-      if opts[:skip_validation] do
-        true
-      else
-        case validate(passport) do
-          :error -> false
-          _ -> true
-        end
-      end
+      struct!(__MODULE__, map)
+      true
     rescue
       _ in ArgumentError -> false
     end
