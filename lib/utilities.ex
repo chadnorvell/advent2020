@@ -109,4 +109,25 @@ defmodule Advent2020.Utilities do
   def xor(bool1, bool2) do
     bool1 != bool2
   end
+
+  @doc """
+  Use binary space partitioning to produce a binary tree from a
+  provided ordered enumeration. I believe this is O(N) (for each
+  level of depth of the resulting tree).
+  """
+  def list_to_bsp(list, lname \\ :l, rname \\ :r) do
+    case split_list(list) do
+      [[left | []], [right | []]] -> Map.new([
+        {lname, left},
+        {rname, right}
+      ])
+      [[_ | _] = left, [_ | _] = right] ->
+        Map.new([
+          {lname, list_to_bsp(left, lname, rname)},
+          {rname, list_to_bsp(right, lname, rname)}
+        ])
+    end
+  end
+
+  defp split_list(list), do: Enum.chunk_every(list, div(Enum.count(list), 2))
 end
