@@ -40,12 +40,9 @@ defmodule Advent2020.BaggageRules do
       end
     end)
     |> Enum.filter(fn x -> x != nil end)
-    # Then create new graph edges for each set of edge data. Note that we swap
-    # source and dest, because we want the graph to be directed opposite the
-    # direction implied by the text rules, so that we can start at the vertex
-    # we care about and traverse the graph from there.
+    # Then create new graph edges for each set of edge data.
     |> Enum.map(fn {dest, num} ->
-      Graph.Edge.new(dest, source, weight: String.to_integer(num))
+      Graph.Edge.new(source, dest, weight: String.to_integer(num))
     end)
     # Insert those edges into the graph.
     |> (fn edges -> Graph.add_edges(rules, edges) end).()
@@ -62,7 +59,40 @@ defmodule Advent2020.BaggageRules do
     add_rules(rest, add_rule(current, rules))
   end
 
+  @doc """
+  Find every bag that can contain this bag.
+  """
   def find_bags_containing(rules, bag) do
-    Graph.reachable_neighbors(rules, [bag])
+    Graph.reaching_neighbors(rules, [bag])
+  end
+
+  @doc """
+  Get a count of the number of bags held by this bag, including itself.
+  (Note that "including itself" is a little odd, but necessary for the
+  recursion to work.)
+  """
+  def bag_count(rules, vertex) do
+    subgraph = Graph.subgraph(rules, Graph.reachable(rules, [vertex]))
+    neighbors = Graph.out_neighbors(subgraph, vertex)
+
+    held_bags =
+      Enum.map(neighbors, fn neighbor ->
+        %{weight: num} = Graph.edge(subgraph, vertex, neighbor)
+        {neighbor, num}
+      end)
+
+    # Each bag's count is 1 (for the bag itself) plus the sum of the count of
+    # bags that it holds.
+    case held_bags do
+      [] ->
+        1
+
+      _ ->
+        1 +
+          (Enum.map(held_bags, fn {neighbor, num} ->
+             num * bag_count(rules, neighbor)
+           end)
+           |> Enum.sum())
+    end
   end
 end

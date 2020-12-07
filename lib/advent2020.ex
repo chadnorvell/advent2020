@@ -216,4 +216,12 @@ defmodule Advent2020 do
     |> BaggageRules.find_bags_containing(:shinygold)
     |> Enum.count()
   end
+
+  def day7_2() do
+    # We need the number of bags held by "shiny gold", so we need
+    # to deduct the count of "shiny gold" itself.
+    (Utilities.file_to_list("./data/day7_1.txt")
+     |> BaggageRules.add_rules()
+     |> BaggageRules.bag_count(:shinygold)) - 1
+  end
 end
