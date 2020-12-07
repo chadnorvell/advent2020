@@ -179,9 +179,7 @@ defmodule Advent2020 do
   def day6_1() do
     Utilities.file_to_list("./data/day6_1.txt", trim: false)
     |> Utilities.file_lines_to_char_sets("", fn current, new ->
-      # When looking at a new group of lines, start with an empty set
-      # and add any characters we find to the group set.
-      current = current || MapSet.new()
+      current = current || new
       MapSet.union(current, new)
     end)
     |> Enum.map(fn set -> Enum.count(set) end)
@@ -191,19 +189,7 @@ defmodule Advent2020 do
   def day6_2() do
     Utilities.file_to_list("./data/day6_1.txt", trim: false)
     |> Utilities.file_lines_to_char_sets("", fn current, new ->
-      # When looking at a group of new lines, start with the total set of all
-      # possible characters, then on each line take the intersection of the
-      # previous line's set with this line's set, to find only the common
-      # characters. (Starting with the a-z set is a little unintuitive, but an
-      # empty set won't work since the intersection of anything with an empty
-      # set is the empty set. Starting with the a-z set and intersecting it
-      # with the set from the first line is the same as initializing the
-      # analysis of the group of lines with the set resulting from the first
-      # line in the group.)
-      current =
-        current ||
-          MapSet.new(Enum.to_list(?a..?z) |> Enum.map(fn n -> <<n>> end))
-
+      current = current || new
       MapSet.intersection(current, new)
     end)
     |> Enum.map(fn set -> Enum.count(set) end)
