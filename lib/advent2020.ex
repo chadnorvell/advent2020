@@ -1,4 +1,5 @@
 defmodule Advent2020 do
+  alias Advent2020.BaggageRules
   alias Advent2020.BoardingPass
   alias Advent2020.Expenses
   alias Advent2020.Grid
@@ -207,5 +208,12 @@ defmodule Advent2020 do
     end)
     |> Enum.map(fn set -> Enum.count(set) end)
     |> Enum.reduce(fn count, sum -> sum + count end)
+  end
+
+  def day7_1() do
+    Utilities.file_to_list("./data/day7_1.txt")
+    |> BaggageRules.add_rules()
+    |> BaggageRules.find_bags_containing(:shinygold)
+    |> Enum.count()
   end
 end
