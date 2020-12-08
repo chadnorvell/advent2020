@@ -2,6 +2,7 @@ defmodule Advent2020 do
   alias Advent2020.BaggageRules
   alias Advent2020.BoardingPass
   alias Advent2020.Expenses
+  alias Advent2020.Interpreter
   alias Advent2020.Grid
   alias Advent2020.Passport
   alias Advent2020.Password
@@ -209,5 +210,65 @@ defmodule Advent2020 do
     (Utilities.file_to_list("./data/day7_1.txt")
      |> BaggageRules.add_rules()
      |> BaggageRules.bag_count(:shinygold)) - 1
+  end
+
+  def day8_1() do
+    Utilities.file_to_list("./data/day8_1.txt")
+    |> Interpreter.load()
+    |> Interpreter.run(fn i -> i.acc end)
+  end
+
+  def day8_2() do
+    i =
+      Utilities.file_to_list("./data/day8_1.txt")
+      |> Interpreter.load()
+
+    keyed_inst = Interpreter.keyed_inst(i.inst)
+
+    swap = %{
+      nop: :jmp,
+      jmp: :nop
+    }
+
+    # This is a brute force approach. We go through each instruction in the
+    # program, and if the instruction is :nop or :jmp, we swap the instruction
+    # at that position, then run the program and see if we finish without an
+    # infinite loop. We skip running the program if the instruction we're
+    # looking at isn't one of those two.
+    day8_2_loop(
+      i,
+      keyed_inst,
+      swap,
+      Interpreter.modify_inst(keyed_inst, swap, 0),
+      0
+    )
+  end
+
+  defp day8_2_loop(i, keyed_inst, swap, modified_inst, candidate_pos) do
+    {inst, _} = Enum.fetch!(i.inst, i.pc)
+
+    if inst == :nop or inst == :jmp do
+      case Interpreter.run(%{i | inst: modified_inst}, fn _ -> :failure end) do
+        :failure ->
+          day8_2_loop(
+            i,
+            keyed_inst,
+            swap,
+            Interpreter.modify_inst(keyed_inst, swap, candidate_pos + 1),
+            candidate_pos + 1
+          )
+
+        acc ->
+          acc
+      end
+    else
+      day8_2_loop(
+        i,
+        keyed_inst,
+        swap,
+        Interpreter.modify_inst(keyed_inst, swap, candidate_pos + 1),
+        candidate_pos + 1
+      )
+    end
   end
 end
