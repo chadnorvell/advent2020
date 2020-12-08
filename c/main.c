@@ -26,6 +26,7 @@ void parse_file(char *filename, char buffer[FILE_BUFFER_LINES][FILE_BUFFER_LINE_
         idx++;
     }
 
+    fclose(fileptr);
     return;
 }
 
