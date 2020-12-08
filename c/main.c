@@ -34,7 +34,6 @@ long day1_1_naive(long *nums, int n, long sum) {
 
     for(int i=0; i < n; ++i) {
         for(int j=0; j < n; ++j) {
-            // works because there are no duplicates in the input data
             if((i != j) && (nums[i] + nums[j] == sum)) {
                 result = nums[i] * nums[j];
                 i = j = n;
@@ -102,7 +101,6 @@ long day1_2_naive(long *nums, int n, long sum) {
     for(int i=0; i < n; ++i) {
         for(int j=0; j < n; ++j) {
             for(int k=0; k < n; ++k) {
-                // works because there are no duplicates in the input data
                 if((i != j) && (j != k) && (k != i) && (nums[i] + nums[j] + nums[k] == sum)) {
                     result = nums[i] * nums[j] * nums[k];
                     i = j = k = n;
