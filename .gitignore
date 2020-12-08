@@ -25,3 +25,5 @@ elixir/advent2020-*.tar
 
 # Temporary files for e.g. tests
 elixir/tmp
+
+c/a.out
