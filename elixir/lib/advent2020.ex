@@ -9,7 +9,7 @@ defmodule Advent2020 do
   alias Advent2020.Utilities
 
   def day1_1() do
-    Utilities.file_to_list("./data/day1_1.txt")
+    Utilities.file_to_list("../data/day1_1.txt")
     |> Enum.map(fn s -> String.to_integer(s) end)
     |> Expenses.expense_report(2020)
   end
@@ -19,7 +19,7 @@ defmodule Advent2020 do
     # two more numbers that sum to that complement. This bumps us to
     # O(n ^ 2).
 
-    Utilities.file_to_list("./data/day1_1.txt")
+    Utilities.file_to_list("../data/day1_1.txt")
     |> Enum.map(fn s -> String.to_integer(s) end)
     |> (fn values -> day1_2_loop(values, values, 2020) end).()
   end
@@ -49,7 +49,7 @@ defmodule Advent2020 do
   end
 
   def day2_1() do
-    Utilities.file_to_list("./data/day2_1.txt")
+    Utilities.file_to_list("../data/day2_1.txt")
     |> Enum.map(fn line -> String.split(line, ": ") end)
     |> Enum.map(fn [policy, password | []] ->
       Password.check_against_policy_old(policy, password)
@@ -58,7 +58,7 @@ defmodule Advent2020 do
   end
 
   def day2_2() do
-    Utilities.file_to_list("./data/day2_1.txt")
+    Utilities.file_to_list("../data/day2_1.txt")
     |> Enum.map(fn line -> String.split(line, ": ") end)
     |> Enum.map(fn [policy, password | []] ->
       Password.check_against_policy_new(policy, password)
@@ -67,7 +67,7 @@ defmodule Advent2020 do
   end
 
   def day3_1() do
-    Utilities.file_to_list("./data/day3_1.txt")
+    Utilities.file_to_list("../data/day3_1.txt")
     |> Grid.from_list_of_strings()
     |> Grid.collect_in_slope(3, 1)
     |> Enum.count(fn element -> element == "#" end)
@@ -75,7 +75,7 @@ defmodule Advent2020 do
 
   def day3_2() do
     grid =
-      Utilities.file_to_list("./data/day3_1.txt")
+      Utilities.file_to_list("../data/day3_1.txt")
       |> Grid.from_list_of_strings()
 
     [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
@@ -87,14 +87,14 @@ defmodule Advent2020 do
   end
 
   def day4_1() do
-    Utilities.file_to_list("./data/day4_1.txt", trim: false)
+    Utilities.file_to_list("../data/day4_1.txt", trim: false)
     |> Utilities.file_lines_to_kv_pairs(":", [" ", "\n"], "")
     |> Enum.map(fn data -> Passport.ok?(data) end)
     |> Enum.count(fn result -> result == true end)
   end
 
   def day4_2() do
-    Utilities.file_to_list("./data/day4_1.txt", trim: false)
+    Utilities.file_to_list("../data/day4_1.txt", trim: false)
     |> Utilities.file_lines_to_kv_pairs(":", [" ", "\n"], "")
     |> Enum.filter(fn data -> Passport.ok?(data) end)
     |> Enum.map(fn data -> struct(Passport, data) |> Passport.validate() end)
@@ -102,14 +102,14 @@ defmodule Advent2020 do
   end
 
   def day5_1() do
-    Utilities.file_to_list("./data/day5_1.txt")
+    Utilities.file_to_list("../data/day5_1.txt")
     |> Enum.map(fn pass -> BoardingPass.get_seat(pass) end)
     |> Enum.map(fn pass -> BoardingPass.id(pass) end)
     |> Enum.max()
   end
 
   def day5_2() do
-    Utilities.file_to_list("./data/day5_1.txt")
+    Utilities.file_to_list("../data/day5_1.txt")
     |> Enum.map(fn pass -> BoardingPass.get_seat(pass) end)
     |> BoardingPass.find_empty_seats()
     |> BoardingPass.group_by_row()
@@ -149,7 +149,7 @@ defmodule Advent2020 do
       Regex.replace(regex, string, replacement)
     end
 
-    Utilities.file_to_list("./data/day5_1.txt")
+    Utilities.file_to_list("../data/day5_1.txt")
     |> Enum.map(fn s ->
       s
       |> regex_replace.(zeros, "0")
@@ -178,7 +178,7 @@ defmodule Advent2020 do
   end
 
   def day6_1() do
-    Utilities.file_to_list("./data/day6_1.txt", trim: false)
+    Utilities.file_to_list("../data/day6_1.txt", trim: false)
     |> Utilities.file_lines_to_char_sets("", fn current, new ->
       current = current || new
       MapSet.union(current, new)
@@ -188,7 +188,7 @@ defmodule Advent2020 do
   end
 
   def day6_2() do
-    Utilities.file_to_list("./data/day6_1.txt", trim: false)
+    Utilities.file_to_list("../data/day6_1.txt", trim: false)
     |> Utilities.file_lines_to_char_sets("", fn current, new ->
       current = current || new
       MapSet.intersection(current, new)
@@ -198,7 +198,7 @@ defmodule Advent2020 do
   end
 
   def day7_1() do
-    Utilities.file_to_list("./data/day7_1.txt")
+    Utilities.file_to_list("../data/day7_1.txt")
     |> BaggageRules.add_rules()
     |> BaggageRules.find_bags_containing(:shinygold)
     |> Enum.count()
@@ -207,20 +207,20 @@ defmodule Advent2020 do
   def day7_2() do
     # We need the number of bags held by "shiny gold", so we need
     # to deduct the count of "shiny gold" itself.
-    (Utilities.file_to_list("./data/day7_1.txt")
+    (Utilities.file_to_list("../data/day7_1.txt")
      |> BaggageRules.add_rules()
      |> BaggageRules.bag_count(:shinygold)) - 1
   end
 
   def day8_1() do
-    Utilities.file_to_list("./data/day8_1.txt")
+    Utilities.file_to_list("../data/day8_1.txt")
     |> Interpreter.load()
     |> Interpreter.run(fn i -> i.acc end)
   end
 
   def day8_2() do
     i =
-      Utilities.file_to_list("./data/day8_1.txt")
+      Utilities.file_to_list("../data/day8_1.txt")
       |> Interpreter.load()
 
     keyed_inst = Interpreter.keyed_inst(i.inst)
