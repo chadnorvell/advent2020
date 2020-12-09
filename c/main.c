@@ -1,3 +1,4 @@
+#include <regex.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -150,7 +151,137 @@ void run_day1_2() {
     printf("Day 1 Part 2 (fast) => expected: %ld // result: %ld :: %s\n", expected, result_fast, EQUAL(expected, result_fast));
 }
 
+struct password_policy {
+    int min;
+    int max;
+    char character;
+    char password[32];
+};
+
+struct password_policies {
+    struct password_policy *policies;
+    int len;
+};
+
+struct password_policy load_password(char line[FILE_BUFFER_LINE_LENGTH]) {
+    int max_matches = 1;
+    int max_groups = 5;
+    regex_t regex;
+    regmatch_t groups[max_groups];
+    int re_status;
+
+    char *regex_str = "([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)";
+    struct password_policy policy;
+
+    re_status = regcomp(&regex, regex_str, REG_EXTENDED);
+
+    if(re_status) {
+        printf("failed to compile regex\n");
+        exit(1);
+    }
+
+    re_status = regexec(&regex, line, max_groups, groups, 0);
+
+    if(re_status) {
+        printf("regex failed to match\n");
+        exit(1);
+    }
+
+    for(int j=0; j < max_groups; j++) {
+        if(groups[j].rm_so == (size_t)-1) {
+            printf("found fewer regex groups than expected\n");
+            exit(1);
+        }
+
+        char line_copy[strlen(line) + 1];
+        strcpy(line_copy, line);
+
+        // truncate off the end of the line beyond this group
+        line_copy[groups[j].rm_eo] = '\0';
+
+        // get a pointer to the part of the line at the beginning of this group
+        char *match_ptr = line_copy + groups[j].rm_so;
+
+        switch(j) {
+            // case 0 is the entire string
+            case 1:
+                policy.min = strtol(match_ptr, NULL, 10);
+                break;
+            case 2:
+                policy.max = strtol(match_ptr, NULL, 10);
+                break;
+            case 3:
+                policy.character = *(char *)match_ptr;
+                break;
+            case 4:
+                strncpy(policy.password, match_ptr, 32);
+                break;
+        }
+    }
+
+    // final confirmation that this was parsed and stored correctly
+    char reconstructed[FILE_BUFFER_LINE_LENGTH];
+    sprintf(reconstructed, "%d-%d %c: %s", policy.min, policy.max, policy.character, policy.password);
+    // printf("%s\n");
+
+    for(int i=0; i < strlen(reconstructed); i++) {
+        if(line[i] != reconstructed[i]) {
+            printf("password parsing failed! %s\n", reconstructed);
+            exit(1);
+        }
+    }
+
+    return policy;
+}
+
+long day2_1(struct password_policies policies_struct) {
+    int valid_passwords = 0;
+
+    for(int i=0; i < policies_struct.len; i++) {
+        int char_count = 0;
+        struct password_policy policy = policies_struct.policies[i];
+
+        // unsigned char *char_ptr = (unsigned char *)&policy;
+        // printf("%d\t[%d, %d, %c]\tpassword=%-32s\traw=", i, policy.min, policy.max, policy.character, policy.password);
+        // for(int k=0; k < sizeof(struct password_policy); k++) {
+        //     printf("%02x", char_ptr[k]);
+        // }
+        // printf("\n");
+
+        for(int j=0; j < strlen(policy.password); j++) {
+            if(policy.password[j] == policy.character) {
+                char_count++;
+            }
+        }
+
+        if((char_count >= policy.min) && (char_count <= policy.max)) {
+            valid_passwords++;
+        }
+    }
+
+    return valid_passwords;
+}
+
+void run_day2_1() {
+    char buffer[FILE_BUFFER_LINES][FILE_BUFFER_LINE_LENGTH];
+    struct password_policy policies[1000];
+
+    parse_file("../data/day2_1.txt", buffer);
+
+    for(int i; i < 1000; ++i) {
+        policies[i] = load_password(buffer[i]);
+    }
+
+    struct password_policies policies_struct = { policies, 1000 };
+
+    long expected = 458;
+    long result = day2_1(policies_struct);
+
+    printf("Day 2 Part 1 => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
+}
+
 int main(void) {
     run_day1_1();
     run_day1_2();
+    run_day2_1();
 }
