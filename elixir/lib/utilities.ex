@@ -185,4 +185,23 @@ defmodule Advent2020.Utilities do
       two_sum(rest, sum, skip, skip_times, MapSet.put(cache, value))
     end
   end
+
+  @doc """
+  Given a set of numbers and a specified sum, find the three values in the
+  list that add up to the sum and return them, if they exist. Otherwise
+  return nil.
+
+  Runs in O(n ^ 2) time.
+  """
+  def three_sum(values, sum, remaining \\ nil)
+  def three_sum(_, _, []), do: nil
+
+  def three_sum(values, sum, remaining) do
+    [z | rest] = remaining || values
+
+    case two_sum(values, sum - z, z) do
+      nil -> three_sum(values, sum, rest)
+      [x, y] -> [x, y, z]
+    end
+  end
 end
