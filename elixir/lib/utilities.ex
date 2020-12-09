@@ -159,4 +159,30 @@ defmodule Advent2020.Utilities do
   end
 
   defp split_list(list), do: Enum.chunk_every(list, div(Enum.count(list), 2))
+
+  @doc """
+  Given a set of numbers and a specified sum, find the two values in the list
+  that add up to the sum and return them, if they exist. Otherwise return
+  nil. You can provide a single value to be skipped.
+
+  Runs in O(n) time and space!
+  """
+  def two_sum(values, sum, skip \\ nil, skip_times \\ 1, cache \\ MapSet.new())
+  def two_sum([], _, _, _, _), do: nil
+
+  def two_sum([value | rest], sum, skip, skip_times, cache) do
+    # If the current value is one that we specified to ignore, short-
+    # circuit this iteration and move on to the next.
+    if value == skip && skip_times > 0 do
+      two_sum(rest, sum, skip, skip_times - 1, cache)
+    end
+
+    if MapSet.member?(cache, complement = sum - value) do
+      # If the complement is present in the cache, then we've seen it
+      # before, therefore it is definitely in the list of values.
+      [value, complement]
+    else
+      two_sum(rest, sum, skip, skip_times, MapSet.put(cache, value))
+    end
+  end
 end

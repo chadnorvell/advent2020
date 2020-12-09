@@ -7,6 +7,7 @@ defmodule Advent2020 do
   alias Advent2020.Passport
   alias Advent2020.Password
   alias Advent2020.Utilities
+  alias Advent2020.Xmas
 
   def day1_1() do
     Utilities.file_to_list("../data/day1_1.txt")
@@ -270,5 +271,19 @@ defmodule Advent2020 do
         candidate_pos + 1
       )
     end
+  end
+
+  def day9_1() do
+    Utilities.file_to_list("../data/day9_1.txt")
+    |> Enum.map(fn s -> String.to_integer(s) end)
+    |> Xmas.find_not_sum(25)
+  end
+
+  def day9_2() do
+    Utilities.file_to_list("../data/day9_1.txt")
+    |> Enum.map(fn s -> String.to_integer(s) end)
+    |> Xmas.find_sum_in_contiguous_range(day9_1())
+    |> (fn slice -> [Enum.min(slice), Enum.max(slice)] end).()
+    |> Enum.sum()
   end
 end
