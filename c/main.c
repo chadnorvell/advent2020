@@ -187,6 +187,8 @@ struct password_policy load_password(char line[FILE_BUFFER_LINE_LENGTH]) {
         exit(1);
     }
 
+    regfree(&regex);
+
     for(int j=0; j < max_groups; j++) {
         if(groups[j].rm_so == (size_t)-1) {
             printf("found fewer regex groups than expected\n");
