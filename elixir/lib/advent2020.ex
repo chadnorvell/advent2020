@@ -258,4 +258,91 @@ defmodule Advent2020 do
     |> (fn slice -> [Enum.min(slice), Enum.max(slice)] end).()
     |> Enum.sum()
   end
+
+  def day10_1() do
+    Utilities.file_to_list("../data/day10_1.txt")
+    |> Enum.map(fn s -> String.to_integer(s) end)
+    |> Enum.sort()
+    |> day10_1_loop()
+    |> (fn %{1 => one, 3 => three} -> (one + 1) * (three + 1) end).()
+  end
+
+  def day10_1_loop(nums, cache \\ %{})
+  def day10_1_loop([], cache), do: cache
+  def day10_1_loop([_ | []], cache), do: cache
+
+  def day10_1_loop([fst, snd | rest], cache) do
+    # Essentially, count the gaps between each number in the sorted list.
+    day10_1_loop(
+      [snd | rest],
+      Map.update(cache, snd - fst, 1, fn x -> x + 1 end)
+    )
+  end
+
+  @doc """
+  This is a little inscrutable; allow me to explain.
+
+  If you take the sorted list of numbers and divide it into sublists that are
+  each separated by 3 "jolts", then the total number of possible combinations
+  is the product of the number of combinations of each sublist (because each
+  sublist can only be "connected" in one way).
+
+  The number of combinations that each sublist can have is simplified by two
+  observations of the input data:
+    1. Numbers are only separated by a gap of 1 or 3 in the sorted list,
+       meaning that within each sublist, the numbers are contiguous, i.e.,
+       have a gap of 1. This means we only need to care about the size of
+       the sublists, not the contents.
+    2. There's only a small number of distinct sublist sizes. In this case,
+       they come in lengths of 1, 2, 3, 4, and 5.
+
+  The number of combinations that can result from each sublist is determined
+  by the number of "gap configurations" you can make. For example, for a
+  sublist of size 4, the gap list of [1, 1, 1] can also be [1, 2], [2, 1],
+  and [3], meaning that there are 4 total combinations.
+
+  So we can just examine the length of each sublist, return the associated
+  constant number of combinations, and multiply them together to get the
+  total number of combinations for the whole list.
+
+  People who are much smarter than me recognize that this is a "tribonacci
+  sequence", and that the answer is as simple as 2^x * 4^y * 7^z, where
+  x = the number of 3-element sublists, y = the number of 4-element
+  sublists, and z = the number of 5-element sublists.
+  """
+  def day10_2() do
+    Utilities.file_to_list("../data/day10_1.txt")
+    |> Enum.map(fn s -> String.to_integer(s) end)
+    |> Enum.sort()
+    |> (fn nums -> [0 | nums] ++ [Enum.max(nums) + 3] end).()
+    |> day10_2_split()
+    |> Enum.map(fn xs -> Enum.reverse(xs) end)
+    |> Enum.reverse()
+    |> Enum.reduce(1, fn xs, acc -> acc * day10_2_combinations(xs) end)
+  end
+
+  def day10_2_split(nums, acc \\ [], split_nums \\ [])
+  def day10_2_split([], _, split_nums), do: split_nums
+
+  def day10_2_split([last | []], acc, split_nums) do
+    [[last | acc] | split_nums]
+  end
+
+  def day10_2_split([fst, snd | rest], acc, split_nums) do
+    if snd - fst >= 3 do
+      day10_2_split([snd | rest], [], [[fst | acc] | split_nums])
+    else
+      day10_2_split([snd | rest], [fst | acc], split_nums)
+    end
+  end
+
+  def day10_2_combinations(nums) do
+    case Enum.count(nums) do
+      1 -> 1
+      2 -> 1
+      3 -> 2
+      4 -> 4
+      5 -> 7
+    end
+  end
 end
