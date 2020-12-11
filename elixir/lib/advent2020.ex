@@ -6,6 +6,7 @@ defmodule Advent2020 do
   alias Advent2020.Grid
   alias Advent2020.Passport
   alias Advent2020.Password
+  alias Advent2020.SeatSim
   alias Advent2020.Utilities
   alias Advent2020.Xmas
 
@@ -42,7 +43,7 @@ defmodule Advent2020 do
   def day3_1() do
     Utilities.file_to_list("../data/day3_1.txt")
     |> Grid.from_list_of_strings()
-    |> Grid.collect_in_slope(3, 1)
+    |> Grid.collect_in_slope_extend_x(3, 1)
     |> Enum.count(fn element -> element == "#" end)
   end
 
@@ -53,7 +54,7 @@ defmodule Advent2020 do
 
     [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
     |> Enum.map(fn {dx, dy} ->
-      Grid.collect_in_slope(grid, dx, dy)
+      Grid.collect_in_slope_extend_x(grid, dx, dy)
       |> Enum.count(fn element -> element == "#" end)
     end)
     |> Enum.reduce(fn x, acc -> acc * x end)
@@ -344,5 +345,21 @@ defmodule Advent2020 do
       4 -> 4
       5 -> 7
     end
+  end
+
+  def day11_1() do
+    Utilities.file_to_list("../data/day11_1.txt")
+    |> Grid.from_list_of_strings()
+    |> SeatSim.new(occupied_to_empty: 4, empty_to_occupied: 0)
+    |> SeatSim.run(&Grid.count_around/5)
+    |> Grid.count_total("#")
+  end
+
+  def day11_2() do
+    Utilities.file_to_list("../data/day11_1.txt")
+    |> Grid.from_list_of_strings()
+    |> SeatSim.new(occupied_to_empty: 5, empty_to_occupied: 0)
+    |> SeatSim.run(&Grid.count_los/5)
+    |> Grid.count_total("#")
   end
 end
