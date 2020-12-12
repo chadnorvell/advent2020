@@ -1,4 +1,5 @@
 #include <regex.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -158,12 +159,13 @@ struct password_policy {
     char password[32];
 };
 
-struct password_policies {
-    struct password_policy *policies;
-    int len;
-};
+struct password_policy load_password_easy(char line[FILE_BUFFER_LINE_LENGTH]) {
+    struct password_policy policy;
+    sscanf(line, "%d-%d %c: %s", &policy.min, &policy.max, &policy.character, policy.password);
+    return policy;
+}
 
-struct password_policy load_password(char line[FILE_BUFFER_LINE_LENGTH]) {
+struct password_policy load_password_hard(char line[FILE_BUFFER_LINE_LENGTH]) {
     int max_matches = 1;
     int max_groups = 5;
     regex_t regex;
@@ -236,29 +238,24 @@ struct password_policy load_password(char line[FILE_BUFFER_LINE_LENGTH]) {
     return policy;
 }
 
-long day2_1(struct password_policies policies_struct) {
+long day2_1(struct password_policy *policies, int len) {
     int valid_passwords = 0;
+    struct password_policy *current_policy = policies;
 
-    for(int i=0; i < policies_struct.len; i++) {
+    for(int i=0; i < len; i++) {
         int char_count = 0;
-        struct password_policy policy = policies_struct.policies[i];
 
-        // unsigned char *char_ptr = (unsigned char *)&policy;
-        // printf("%d\t[%d, %d, %c]\tpassword=%-32s\traw=", i, policy.min, policy.max, policy.character, policy.password);
-        // for(int k=0; k < sizeof(struct password_policy); k++) {
-        //     printf("%02x", char_ptr[k]);
-        // }
-        // printf("\n");
-
-        for(int j=0; j < strlen(policy.password); j++) {
-            if(policy.password[j] == policy.character) {
+        for(int j=0; j < strlen(current_policy->password); j++) {
+            if(current_policy->password[j] == current_policy->character) {
                 char_count++;
             }
         }
 
-        if((char_count >= policy.min) && (char_count <= policy.max)) {
+        if((char_count >= current_policy->min) && (char_count <= current_policy->max)) {
             valid_passwords++;
         }
+
+        current_policy++;
     }
 
     return valid_passwords;
@@ -271,15 +268,21 @@ void run_day2_1() {
     parse_file("../data/day2_1.txt", buffer);
 
     for(int i; i < 1000; ++i) {
-        policies[i] = load_password(buffer[i]);
+        policies[i] = load_password_hard(buffer[i]);
     }
 
-    struct password_policies policies_struct = { policies, 1000 };
-
     long expected = 458;
-    long result = day2_1(policies_struct);
+    long result = day2_1(policies, 1000);
 
-    printf("Day 2 Part 1 => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
+    printf("Day 2 Part 1 (hard) => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
+
+    for(int i; i < 1000; i++) {
+        policies[i] = load_password_easy(buffer[i]);
+    }
+
+    result = day2_1(policies, 1000);
+
+    printf("Day 2 Part 1 (easy) => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
 }
 
 int main(void) {
