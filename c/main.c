@@ -285,8 +285,42 @@ void run_day2_1() {
     printf("Day 2 Part 1 (easy) => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
 }
 
+long day2_2(struct password_policy *policies, int len) {
+    int valid_passwords = 0;
+    struct password_policy *current_policy = policies;
+
+    for(int i=0; i < len; i++) {
+        char a = current_policy->password[current_policy->min - 1];
+        char b = current_policy->password[current_policy->max - 1];
+
+        if((a == current_policy->character) != (b == current_policy->character)) {
+            valid_passwords++;
+        }
+
+        current_policy++;
+    }
+
+    return valid_passwords;
+}
+
+void run_day2_2() {
+    char buffer[FILE_BUFFER_LINES][FILE_BUFFER_LINE_LENGTH];
+    struct password_policy policies[1000];
+
+    parse_file("../data/day2_1.txt", buffer);
+
+    for(int i; i < 1000; ++i) {
+        policies[i] = load_password_easy(buffer[i]);
+    }
+
+    long expected = 342;
+    long result = day2_2(policies, 1000);
+    printf("Day 2 Part 2 (easy) => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
+}
+
 int main(void) {
     run_day1_1();
     run_day1_2();
     run_day2_1();
+    run_day2_2();
 }
