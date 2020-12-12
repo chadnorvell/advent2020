@@ -4,6 +4,8 @@ defmodule Advent2020 do
   alias Advent2020.Expenses
   alias Advent2020.Interpreter
   alias Advent2020.Grid
+  alias Advent2020.Navigation
+  alias Advent2020.NavigationWithWaypoint
   alias Advent2020.Passport
   alias Advent2020.Password
   alias Advent2020.SeatSim
@@ -361,5 +363,19 @@ defmodule Advent2020 do
     |> SeatSim.new(occupied_to_empty: 5, empty_to_occupied: 0)
     |> SeatSim.run(&Grid.count_los/5)
     |> Grid.count_total("#")
+  end
+
+  def day12_1() do
+    Utilities.file_to_list("../data/day12_1.txt")
+    |> Enum.map(&Navigation.load_move/1)
+    |> Navigation.run(%Navigation{})
+    |> (fn n -> abs(n.x) + abs(n.y) end).()
+  end
+
+  def day12_2() do
+    Utilities.file_to_list("../data/day12_1.txt")
+    |> Enum.map(&Navigation.load_move/1)
+    |> NavigationWithWaypoint.run(%NavigationWithWaypoint{wx: 10, wy: 1})
+    |> (fn n -> abs(n.x) + abs(n.y) end).()
   end
 end
