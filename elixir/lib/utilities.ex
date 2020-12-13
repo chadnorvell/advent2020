@@ -204,4 +204,69 @@ defmodule Advent2020.Utilities do
       [x, y] -> [x, y, z]
     end
   end
+
+  @doc """
+  Greatest common divisor
+  """
+  def gcd(a, 0), do: abs(a)
+  def gcd(a, b), do: gcd(b, rem(a, b))
+
+  @doc """
+  The "extended Euclidean algorithm". Uh, see Wikipedia for more details.
+  """
+  def extended_gcd(a, b) do
+    {old_r, r} = {a, b}
+    {old_s, s} = {1, 0}
+    {old_t, t} = {0, 1}
+
+    extended_gcd_loop(r, old_r, s, old_s, t, old_t)
+  end
+
+  defp extended_gcd_loop(0, old_r, _, old_s, _, old_t),
+    do: {old_r, old_s, old_t}
+
+  defp extended_gcd_loop(r, old_r, s, old_s, t, old_t) do
+    quotient = div(old_r, r)
+    remainder = rem(old_r, r)
+
+    {old_r, r} = {r, remainder}
+    {old_s, s} = {s, old_s - quotient * s}
+    {old_t, t} = {t, old_t - quotient * t}
+
+    extended_gcd_loop(r, old_r, s, old_s, t, old_t)
+  end
+
+  @doc """
+  Given signals that each have a period and a phase, combine them into a single
+  signal and return the resulting period and phase.
+
+  See this Stack Overflow page for more details:
+    https://math.stackexchange.com/questions/2218763/how-to-find-lcm-of-two-numbers-when-one-starts-with-an-offset
+  """
+  def combine_phase_rotation({period_a, phase_a}, {period_b, phase_b}) do
+    {gcd, s, _} = extended_gcd(period_a, period_b)
+    phase_diff = phase_a - phase_b
+    pd_mult = div(phase_diff, gcd)
+    pd_rem = rem(phase_diff, gcd)
+
+    if pd_rem != 0 do
+      raise "sync never occurs!"
+    end
+
+    combined_period = div(period_a, gcd) * period_b
+    combined_phase = rem(phase_a - s * pd_mult * period_a, combined_period)
+    {combined_period, combined_phase}
+  end
+
+  def combine_phase_rotation([a, b]), do: combine_phase_rotation(a, b)
+
+  def combine_phase_rotation([a | rest]),
+    do: combine_phase_rotation(a, combine_phase_rotation(rest))
+
+  @doc """
+  Least common multiple
+  """
+  def lcm(a, b), do: div(abs(a * b), gcd(a, b))
+  def lcm([a, b]), do: lcm(a, b)
+  def lcm([a | rest]), do: lcm(a, lcm(rest))
 end

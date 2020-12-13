@@ -105,4 +105,12 @@ defmodule Advent2020Test do
   test "day 12 part 2" do
     assert Advent2020.day12_2() == 27016
   end
+
+  test "day 13 part 1" do
+    assert Advent2020.day13_1() == 2947
+  end
+
+  test "day 13 part 2" do
+    assert Advent2020.day13_2() == 526_090_562_196_173
+  end
 end

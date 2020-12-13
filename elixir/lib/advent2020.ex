@@ -385,47 +385,56 @@ defmodule Advent2020 do
 
     bus_ids
     |> String.split(",")
+    # Ignore out of service buses
     |> Enum.filter(fn id -> id != "x" end)
     |> Enum.map(fn id ->
       id
       |> String.to_integer()
+      # For each bus, get the next departure time after the current time
       |> (fn id ->
             {Stream.iterate(ceil(timestamp / id) * id, fn x -> x + id end)
              |> Enum.take(1)
              |> (fn [x | []] -> x end).(), id}
           end).()
     end)
+    # Sort to get the bus leaving earliest
     |> Enum.sort(fn {ts1, _}, {ts2, _} -> ts1 < ts2 end)
     |> Enum.take(1)
     |> (fn [x | []] -> x end).()
     |> (fn {ts, id} -> (ts - timestamp) * id end).()
   end
 
+  @doc """
+  This is kind of a trip. See commit b456b8f for the brute force solution
+  that iterates from t=0 until it finds a timestamp that meets the
+  conditions. That solution could take a thousand years to compute, so here's
+  a galaxy-brain math solution.
+
+  I started from the conjecture that if all the buses needed to leave at the
+  same time, then the earliest such timestamp should be the LCM of all the
+  bus IDs. But each bus's desired departure is offset by a fixed amount
+  relative to the others, so it's actually like a set of signals with periods
+  and phases and the goal is to find the combined period of the whole system.
+
+  A bit of Googling let me to the "extended Euclidean algorithm", which can be
+  used to solve exactly what I described above. I have to stress that I don't
+  totally understand the fundamental math behind this solution, and I
+  essentially copied the implementations in `Utilities` from Wikipedia. But
+  I think the important part is realizing that a solution that could be
+  calculated in my lifetime lay in this domain.
+  """
   def day13_2() do
-    [_, bus_ids | _] = Utilities.file_to_list("../data/day13_1.txt")
-
-    bus_ids
+    Utilities.file_to_list("../data/day13_1.txt")
+    |> (fn [_, bus_ids | _] -> bus_ids end).()
     |> String.split(",")
-    |> day13_2_loop()
-  end
-
-  defp day13_2_loop(bus_ids, timestamp \\ 0) do
-    bus_ids
-    |> Enum.with_index(timestamp)
+    # The index is the "how many minutes later" each bus needs to depart
+    |> Enum.with_index()
+    # Remove irrelevant buses
     |> Enum.filter(fn {id, _} -> id != "x" end)
     |> Enum.map(fn {id, idx} -> {String.to_integer(id), idx} end)
-    |> Enum.map(fn {id, idx} ->
-      {Stream.iterate(ceil(timestamp / id) * id, fn x -> x + id end)
-       |> Enum.take(1)
-       |> (fn [x | []] -> x end).(), idx}
-    end)
-    |> Enum.reduce(true, fn {id, idx}, acc -> acc and id == idx end)
-    |> (fn success ->
-          if success do
-            timestamp
-          else
-            day13_2_loop(bus_ids, timestamp + 1)
-          end
-        end).()
+    |> Utilities.combine_phase_rotation()
+    # This phase is the offset of the combined signal, i.e., how far from t=0
+    # it occurs for the first time. I'm not sure why it's negative ¯\_(ツ)_/¯
+    |> (fn {_, phase} -> -phase end).()
   end
 end
