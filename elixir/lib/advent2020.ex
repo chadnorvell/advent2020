@@ -422,6 +422,12 @@ defmodule Advent2020 do
   essentially copied the implementations in `Utilities` from Wikipedia. But
   I think the important part is realizing that a solution that could be
   calculated in my lifetime lay in this domain.
+
+  PS: The extended Euclidean algorithm is useful for this case when the periods
+  of each signal are co-prime, i.e., their GCD is 1. A quick visual inspection
+  of the input shows that they're all odd numbers and *look* like primes.
+  Maybe that would have been a clue to someone already familiar with this
+  algorithm.
   """
   def day13_2() do
     Utilities.file_to_list("../data/day13_1.txt")
