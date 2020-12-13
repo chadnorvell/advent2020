@@ -378,4 +378,54 @@ defmodule Advent2020 do
     |> NavigationWithWaypoint.run(%NavigationWithWaypoint{wx: 10, wy: 1})
     |> (fn n -> abs(n.x) + abs(n.y) end).()
   end
+
+  def day13_1() do
+    [timestamp, bus_ids | _] = Utilities.file_to_list("../data/day13_1.txt")
+    timestamp = String.to_integer(timestamp)
+
+    bus_ids
+    |> String.split(",")
+    |> Enum.filter(fn id -> id != "x" end)
+    |> Enum.map(fn id ->
+      id
+      |> String.to_integer()
+      |> (fn id ->
+            {Stream.iterate(ceil(timestamp / id) * id, fn x -> x + id end)
+             |> Enum.take(1)
+             |> (fn [x | []] -> x end).(), id}
+          end).()
+    end)
+    |> Enum.sort(fn {ts1, _}, {ts2, _} -> ts1 < ts2 end)
+    |> Enum.take(1)
+    |> (fn [x | []] -> x end).()
+    |> (fn {ts, id} -> (ts - timestamp) * id end).()
+  end
+
+  def day13_2() do
+    [_, bus_ids | _] = Utilities.file_to_list("../data/day13_1.txt")
+
+    bus_ids
+    |> String.split(",")
+    |> day13_2_loop()
+  end
+
+  defp day13_2_loop(bus_ids, timestamp \\ 0) do
+    bus_ids
+    |> Enum.with_index(timestamp)
+    |> Enum.filter(fn {id, _} -> id != "x" end)
+    |> Enum.map(fn {id, idx} -> {String.to_integer(id), idx} end)
+    |> Enum.map(fn {id, idx} ->
+      {Stream.iterate(ceil(timestamp / id) * id, fn x -> x + id end)
+       |> Enum.take(1)
+       |> (fn [x | []] -> x end).(), idx}
+    end)
+    |> Enum.reduce(true, fn {id, idx}, acc -> acc and id == idx end)
+    |> (fn success ->
+          if success do
+            timestamp
+          else
+            day13_2_loop(bus_ids, timestamp + 1)
+          end
+        end).()
+  end
 end
