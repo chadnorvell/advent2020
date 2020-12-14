@@ -8,6 +8,8 @@ defmodule Advent2020 do
   alias Advent2020.NavigationWithWaypoint
   alias Advent2020.Passport
   alias Advent2020.Password
+  alias Advent2020.PortSystem
+  alias Advent2020.PortSystemV2
   alias Advent2020.SeatSim
   alias Advent2020.Utilities
   alias Advent2020.Xmas
@@ -460,5 +462,19 @@ defmodule Advent2020 do
     # it occurs for the first time. I believe this is negative due to the
     # conceptual reversal of the problem I discuss in the docstring.
     |> (fn {_, phase} -> -phase end).()
+  end
+
+  def day14_1() do
+    Utilities.file_to_list("../data/day14_1.txt")
+    |> PortSystem.init()
+    |> Enum.map(fn {_, x} -> x end)
+    |> Enum.sum()
+  end
+
+  def day14_2() do
+    Utilities.file_to_list("../data/day14_1.txt")
+    |> PortSystemV2.init()
+    |> Enum.map(fn {_, x} -> x end)
+    |> Enum.sum()
   end
 end

@@ -269,4 +269,17 @@ defmodule Advent2020.Utilities do
   def lcm(a, b), do: div(abs(a * b), gcd(a, b))
   def lcm([a, b]), do: lcm(a, b)
   def lcm([a | rest]), do: lcm(a, lcm(rest))
+
+  @doc """
+  The Cartesian product of the provided values
+  """
+  def cartesian_product(a, b) do
+    for x <- a, y <- b, do: [x, y]
+  end
+
+  def cartesian_product([a, b]), do: cartesian_product(a, b)
+
+  def cartesian_product([a | rest]),
+    do:
+      cartesian_product(a, cartesian_product(rest)) |> Enum.map(&List.flatten/1)
 end
