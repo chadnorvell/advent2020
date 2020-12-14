@@ -22,8 +22,9 @@ elixir/*.ez
 # Ignore package tarball (built via "mix hex.build").
 elixir/advent2020-*.tar
 
-
 # Temporary files for e.g. tests
 elixir/tmp
 
-c/a.out
+c/advent
+c/core
+c/obj/*

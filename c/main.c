@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "grid_infx.h"
+
 #define EQUAL(X, Y) ((X) == (Y) ? "OK" : "FAIL")
 
 #define FILE_BUFFER_LINES 2500
@@ -318,9 +320,55 @@ void run_day2_2() {
     printf("Day 2 Part 2 (easy) => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
 }
 
+void run_day3_1() {
+    const int size_y = 323;
+    const int size_x = 31;
+    char grid_data[size_y][size_x];
+
+    char buffer[FILE_BUFFER_LINES][FILE_BUFFER_LINE_LENGTH];
+    parse_file("../data/day3_1.txt", buffer);
+
+    for(int y=0; y < size_y; y++) {
+        strncpy(grid_data[y], buffer[y], size_x);
+    }
+
+    struct grid_infx grid = { size_x, size_y, (char **)grid_data };
+    long result = grid_infx_count_in_path(grid, '#', 3, 1);
+    long expected = 272;
+
+    printf("Day 3 Part 1 => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
+}
+
+void run_day3_2() {
+    const int size_y = 323;
+    const int size_x = 31;
+    char grid_data[size_y][size_x];
+
+    char buffer[FILE_BUFFER_LINES][FILE_BUFFER_LINE_LENGTH];
+    parse_file("../data/day3_1.txt", buffer);
+
+    for(int y=0; y < size_y; y++) {
+        strncpy(grid_data[y], buffer[y], size_x);
+    }
+
+    struct grid_infx grid = { size_x, size_y, (char **)grid_data };
+
+    long result = grid_infx_count_in_path(grid, '#', 1, 1);
+    result *= grid_infx_count_in_path(grid, '#', 3, 1);
+    result *= grid_infx_count_in_path(grid, '#', 5, 1);
+    result *= grid_infx_count_in_path(grid, '#', 7, 1);
+    result *= grid_infx_count_in_path(grid, '#', 1, 2);
+
+    long expected = 3898725600;
+
+    printf("Day 3 Part 2 => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
+}
+
 int main(void) {
     run_day1_1();
     run_day1_2();
     run_day2_1();
     run_day2_2();
+    run_day3_1();
+    run_day3_2();
 }
