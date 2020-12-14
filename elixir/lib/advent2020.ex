@@ -411,10 +411,11 @@ defmodule Advent2020 do
   a galaxy-brain math solution.
 
   I started from the conjecture that if all the buses needed to leave at the
-  same time, then the earliest such timestamp should be the LCM of all the
-  bus IDs. But each bus's desired departure is offset by a fixed amount
-  relative to the others, so it's actually like a set of signals with periods
-  and phases and the goal is to find the combined period of the whole system.
+  same time (t>0), then the earliest such timestamp should be a multiple of
+  the LCM of all the bus IDs. But each bus's desired departure is offset by a
+  fixed amount relative to the others, so it's actually like a set of signals
+  with periods and phases and the goal is to find the combined period of the
+  whole system.
 
   A bit of Googling let me to the "extended Euclidean algorithm", which can be
   used to solve exactly what I described above. I have to stress that I don't
@@ -423,11 +424,27 @@ defmodule Advent2020 do
   I think the important part is realizing that a solution that could be
   calculated in my lifetime lay in this domain.
 
-  PS: The extended Euclidean algorithm is useful for this case when the periods
-  of each signal are co-prime, i.e., their GCD is 1. A quick visual inspection
-  of the input shows that they're all odd numbers and *look* like primes.
-  Maybe that would have been a clue to someone already familiar with this
-  algorithm.
+  As it turns out, I think I inadvertently did something clever, because it's
+  not immediately obvious that this solution should work. Here's my explanation
+  for why it does actually work:
+
+  At time t=0, all buses depart. We want to find a time t=N where the each of
+  the next bus departures will match the pattern stipulated by the problem
+  input. This solution reverses that, and says: If at time t=0, the next
+  departure of each bus matches the pattern stipulated by the problem input,
+  then there must be a time t=N where all the buses depart simultaneously.
+  So if you can find that N, it's the same N that answers the original
+  question, but the problem is now formulated in terms of finding the combined
+  period/offset of a system of periods/offsets.
+
+  PS: The extended Euclidean algorithm is useful for this case when the
+  periods of each signal are co-prime, i.e., their GCD is 1. A quick visual
+  inspection of the input shows that they're all odd numbers and *look* like
+  primes. Maybe that would have been a clue to someone already familiar with
+  this algorithm. Alternatively, someone familiar with cryptography might
+  have immediately noticed it's a series of prime numbers and used the same
+  algorithmic tools that are used to crunch RSA keys (no wonder it takes
+  thousands of years to brute force).
   """
   def day13_2() do
     Utilities.file_to_list("../data/day13_1.txt")
@@ -440,7 +457,8 @@ defmodule Advent2020 do
     |> Enum.map(fn {id, idx} -> {String.to_integer(id), idx} end)
     |> Utilities.combine_phase_rotation()
     # This phase is the offset of the combined signal, i.e., how far from t=0
-    # it occurs for the first time. I'm not sure why it's negative ¯\_(ツ)_/¯
+    # it occurs for the first time. I believe this is negative due to the
+    # conceptual reversal of the problem I discuss in the docstring.
     |> (fn {_, phase} -> -phase end).()
   end
 end
