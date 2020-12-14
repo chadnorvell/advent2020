@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "queue_char.h"
 #include "grid_infx.h"
 
 #define EQUAL(X, Y) ((X) == (Y) ? "OK" : "FAIL")
@@ -364,6 +365,98 @@ void run_day3_2() {
     printf("Day 3 Part 2 => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
 }
 
+int hash_passport_field(char *field) {
+    int hash = 0;
+
+    for(int i=0; i < strlen(field); i++) {
+        hash += (int)field[i];
+    }
+
+    return hash;
+}
+
+void run_day4_1() {
+    char buffer[FILE_BUFFER_LINES][FILE_BUFFER_LINE_LENGTH];
+    parse_file("../data/day4_1.txt", buffer);
+
+    int valid = 0;
+    // re-use the poor man's set idea
+    bool set[INT16_MAX] = { false };
+    char items[3];
+    struct queue_char queue = queue_char_new(items, 3);
+    bool collecting = true;
+    int this_hash = 0;
+    char this_char;
+
+    const int actual_lines = 1070;
+
+    // the extremely poor man's hash function
+    int byr_hash = 'b' + 'y' + 'r';
+    int iyr_hash = 'i' + 'y' + 'r';
+    int eyr_hash = 'e' + 'y' + 'r';
+    int hgt_hash = 'h' + 'g' + 't';
+    int hcl_hash = 'h' + 'c' + 'l';
+    int ecl_hash = 'e' + 'c' + 'l';
+    int pid_hash = 'p' + 'i' + 'd';
+    int cid_hash = 'c' + 'i' + 'd';
+
+    for(int i=0; i < actual_lines; i++) {
+        // blank line; check to see if all required fields are present and
+        // reset the set
+        if(buffer[i][0] == '\0') {
+           if(
+               set[byr_hash] &&
+               set[iyr_hash] &&
+               set[eyr_hash] &&
+               set[hgt_hash] &&
+               set[hcl_hash] &&
+               set[ecl_hash] &&
+               set[pid_hash]
+           ) {
+               valid++;
+           }
+
+           for(int j=0; j < INT16_MAX; j++) {
+               set[j] = false;
+           }
+        } else {
+            for(int k=0; k < strlen(buffer[i]); k++) {
+                this_char = buffer[i][k];
+
+                switch(this_char) {
+                    // flush the queue and set the appropriate hash position
+                    // stop enqueuing for now
+                    case ':':
+                        this_hash += (int)queue_char_dequeue(&queue);
+                        this_hash += (int)queue_char_dequeue(&queue);
+                        this_hash += (int)queue_char_dequeue(&queue);
+                        set[this_hash] = true;
+                        collecting = false;
+                        this_hash = 0;
+                        break;
+
+                    // start of a field; start enqueuing again
+                    case ' ':
+                        collecting = true;
+                        break;
+
+                    // if we're in a field, enqueue those chars; else ignore
+                    default:
+                        if(collecting) {
+                            queue_char_enqueue(&queue, this_char);
+                        }
+                }
+            }
+
+            // a new line will come soon; start enqueuing again
+            collecting = true;
+        }
+    }
+
+    int expected = 213;
+    printf("Day 4 Part 1 => expected: %d // result: %d :: %s\n", expected, valid, EQUAL(expected, valid));
+}
+
 int main(void) {
     run_day1_1();
     run_day1_2();
@@ -371,4 +464,5 @@ int main(void) {
     run_day2_2();
     run_day3_1();
     run_day3_2();
+    run_day4_1();
 }
