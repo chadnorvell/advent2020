@@ -1,6 +1,7 @@
 defmodule Advent2020 do
   alias Advent2020.BaggageRules
   alias Advent2020.BoardingPass
+  alias Advent2020.ElfGame
   alias Advent2020.Expenses
   alias Advent2020.Interpreter
   alias Advent2020.Grid
@@ -477,6 +478,26 @@ defmodule Advent2020 do
     |> PortSystemV2.init()
     |> Enum.map(fn {_, x} -> x end)
     |> Enum.sum()
+  end
+
+  def day15_1() do
+    Utilities.file_to_list("../data/day15_1.txt")
+    |> List.first()
+    |> String.split(",")
+    |> Enum.map(fn x -> String.to_integer(x) end)
+    |> ElfGame.new()
+    |> ElfGame.play(2020)
+    |> (fn %{last_num: last_num} -> last_num end).()
+  end
+
+  def day15_2() do
+    Utilities.file_to_list("../data/day15_1.txt")
+    |> List.first()
+    |> String.split(",")
+    |> Enum.map(fn x -> String.to_integer(x) end)
+    |> ElfGame.new()
+    |> ElfGame.play(30_000_000)
+    |> (fn %{last_num: last_num} -> last_num end).()
   end
 
   def day16_1() do
