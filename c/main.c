@@ -365,30 +365,128 @@ void run_day3_2() {
     printf("Day 3 Part 2 => expected: %ld // result: %ld :: %s\n", expected, result, EQUAL(expected, result));
 }
 
-int hash_passport_field(char *field) {
+int hash_passport_field(char *field, int size) {
     int hash = 0;
 
-    for(int i=0; i < strlen(field); i++) {
+    for(int i=0; i < size; i++) {
         hash += (int)field[i];
     }
 
     return hash;
 }
 
-void run_day4_1() {
+bool validate_passport_field_data(char *field, char *data, int data_size) {
+    // we want to avoid unsafe situations, but we need
+    // at least this much in the data buffer
+    if(data_size < 7) {
+        return false;
+    }
+
+    if((strncmp(field, "byr", 3) == 0) && strnlen(data, 4)) {
+        long year = strtol(data, NULL, 10);
+        return (year >= 1920) && (year <= 2002);
+    }
+
+    if((strncmp(field, "iyr", 3) == 0) && strnlen(data, 4)) {
+        long year = strtol(data, NULL, 10);
+        return (year >= 2010) && (year <= 2020);
+    }
+
+    if((strncmp(field, "eyr", 3) == 0) && strnlen(data, 4)) {
+        long year = strtol(data, NULL, 10);
+        return (year >= 2020) && (year <= 2030);
+    }
+
+    if(strncmp(field, "hgt", 3) == 0) {
+        char *units;
+        long height = strtol(data, &units, 10);
+
+        if(strncmp(units, "in", 2) == 0) {
+            return (height >= 59) && (height <= 76);
+        } else if (strncmp(units, "cm", 2) == 0) {
+            return (height >= 150) && (height <= 193);
+        } else {
+            return false;
+        }
+    }
+
+    if(strncmp(field, "hcl", 3) == 0) {
+        bool is_valid = true;
+
+        printf("%s  ", data);
+
+        for(int i=0; i < 7; i++) {
+            if(data[i] == '\0') {
+                break;
+            }
+
+            if(i == 0) {
+                is_valid = data[i] == '#';
+
+                if(!is_valid) {
+                    break;
+                }
+            } else {
+                is_valid =
+                    (((int)data[i] >= 48) && ((int)data[i] <= 57))
+                    || (((int)data[i] >= 97) && ((int)data[i] <= 102))
+                    && is_valid;
+            }
+        }
+
+        return is_valid;
+    }
+
+    if(strncmp(field, "ecl", 3) == 0) {
+        return
+            (strncmp(data, "amb", 3) == 0) ||
+            (strncmp(data, "blu", 3) == 0) ||
+            (strncmp(data, "brn", 3) == 0) ||
+            (strncmp(data, "gry", 3) == 0) ||
+            (strncmp(data, "grn", 3) == 0) ||
+            (strncmp(data, "hzl", 3) == 0) ||
+            (strncmp(data, "oth", 3) == 0);
+    }
+
+    if((strncmp(field, "pid", 3) == 0) && strnlen(data, 9)) {
+        long pid = strtol(data, NULL, 10);
+        return (pid > 0) && (pid <= 999999999);
+    }
+
+    return false;
+}
+
+struct day4_results {
+    int present;
+    int valid;
+};
+
+struct day4_results day4() {
     char buffer[FILE_BUFFER_LINES][FILE_BUFFER_LINE_LENGTH];
     parse_file("../data/day4_1.txt", buffer);
 
+    const int actual_lines = 1070;
+    const int field_name_size = 3;
+    const int data_size = 32;
+
+    int present = 0;
     int valid = 0;
+
     // re-use the poor man's set idea
-    bool set[INT16_MAX] = { false };
-    char items[3];
-    struct queue_char queue = queue_char_new(items, 3);
-    bool collecting = true;
+    bool present_set[INT16_MAX] = { false };
+    bool valid_set[INT16_MAX] = { false };
+
+    char field_items[field_name_size];
+    char data_items[data_size];
+    char field_name_buffer[field_name_size];
+    char data_buffer[data_size];
+
+    struct queue_char field_queue = queue_char_new(field_items, field_name_size);
+    struct queue_char data_queue = queue_char_new(data_items, data_size);
+
+    bool collecting_field = true;
     int this_hash = 0;
     char this_char;
-
-    const int actual_lines = 1070;
 
     // the extremely poor man's hash function
     int byr_hash = 'b' + 'y' + 'r';
@@ -401,60 +499,90 @@ void run_day4_1() {
     int cid_hash = 'c' + 'i' + 'd';
 
     for(int i=0; i < actual_lines; i++) {
-        // blank line; check to see if all required fields are present and
-        // reset the set
+        // blank line; check to see if all required fields are present and valid,
+        // then reset the sets
         if(buffer[i][0] == '\0') {
            if(
-               set[byr_hash] &&
-               set[iyr_hash] &&
-               set[eyr_hash] &&
-               set[hgt_hash] &&
-               set[hcl_hash] &&
-               set[ecl_hash] &&
-               set[pid_hash]
+               present_set[byr_hash] &&
+               present_set[iyr_hash] &&
+               present_set[eyr_hash] &&
+               present_set[hgt_hash] &&
+               present_set[hcl_hash] &&
+               present_set[ecl_hash] &&
+               present_set[pid_hash]
+           ) {
+               present++;
+           }
+
+           if(
+               valid_set[byr_hash] &&
+               valid_set[iyr_hash] &&
+               valid_set[eyr_hash] &&
+               valid_set[hgt_hash] &&
+               valid_set[hcl_hash] &&
+               valid_set[ecl_hash] &&
+               valid_set[pid_hash]
            ) {
                valid++;
            }
 
            for(int j=0; j < INT16_MAX; j++) {
-               set[j] = false;
+               present_set[j] = false;
+               valid_set[j] = false;
            }
         } else {
             for(int k=0; k < strlen(buffer[i]); k++) {
                 this_char = buffer[i][k];
 
                 switch(this_char) {
-                    // flush the queue and set the appropriate hash position
-                    // stop enqueuing for now
+                    // flush the field name queue and set the appropriate hash position
                     case ':':
-                        this_hash += (int)queue_char_dequeue(&queue);
-                        this_hash += (int)queue_char_dequeue(&queue);
-                        this_hash += (int)queue_char_dequeue(&queue);
-                        set[this_hash] = true;
-                        collecting = false;
-                        this_hash = 0;
+                        queue_char_flush(&field_queue, field_name_buffer, field_name_size);
+                        this_hash = hash_passport_field(field_name_buffer, field_name_size);
+                        present_set[this_hash] = true;
+                        collecting_field = false;
                         break;
 
-                    // start of a field; start enqueuing again
+                    // start of a field; flush the data queue
+                    // start enqueuing the field name again
                     case ' ':
-                        collecting = true;
+                        queue_char_flush(&data_queue, data_buffer, data_size);
+                        valid_set[this_hash] = validate_passport_field_data(field_name_buffer, data_buffer, data_size);
+                        collecting_field = true;
                         break;
 
-                    // if we're in a field, enqueue those chars; else ignore
+                    // enqueue to appropriate queue
                     default:
-                        if(collecting) {
-                            queue_char_enqueue(&queue, this_char);
+                        if(collecting_field) {
+                            queue_char_enqueue(&field_queue, this_char);
+                        } else {
+                            queue_char_enqueue(&data_queue, this_char);
                         }
                 }
             }
 
-            // a new line will come soon; start enqueuing again
-            collecting = true;
+            // a new line will come soon; flush the data queue
+            // start enqueuing the field again
+            queue_char_flush(&data_queue, data_buffer, data_size);
+            valid_set[this_hash] = validate_passport_field_data(field_name_buffer, data_buffer, data_size);
+            collecting_field = true;
         }
     }
 
+    struct day4_results results = { present, valid };
+    return results;
+}
+
+void run_day4_1() {
+    struct day4_results results = day4();
     int expected = 213;
-    printf("Day 4 Part 1 => expected: %d // result: %d :: %s\n", expected, valid, EQUAL(expected, valid));
+    printf("Day 4 Part 1 => expected: %d // result: %d :: %s\n", expected, results.present, EQUAL(expected, results.present));
+}
+
+void run_day4_2() {
+    struct day4_results results = day4();
+    int expected = 147;
+    printf("Day 4 Part 2 => expected: %d // result: %d :: %s\n", expected, results.valid, EQUAL(expected, results.valid));
 }
 
 int main(void) {
@@ -465,4 +593,5 @@ int main(void) {
     run_day3_1();
     run_day3_2();
     run_day4_1();
+    run_day4_2();
 }

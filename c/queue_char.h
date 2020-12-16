@@ -9,3 +9,5 @@ struct queue_char {
 struct queue_char queue_char_new(char *items, int max_size);
 void queue_char_enqueue(struct queue_char *queue, char x);
 char queue_char_dequeue(struct queue_char *queue);
+void queue_char_reset(struct queue_char *queue);
+void queue_char_flush(struct queue_char *queue, char *buffer, int buffer_size);
