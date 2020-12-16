@@ -282,4 +282,13 @@ defmodule Advent2020.Utilities do
   def cartesian_product([a | rest]),
     do:
       cartesian_product(a, cartesian_product(rest)) |> Enum.map(&List.flatten/1)
+
+  @doc """
+  Get the union of a list of `MapSet`s.
+  """
+  def map_set_union([current, last]), do: MapSet.union(current, last)
+
+  def map_set_union([current | rest]) do
+    MapSet.union(current, map_set_union(rest))
+  end
 end

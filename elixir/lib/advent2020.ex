@@ -11,6 +11,7 @@ defmodule Advent2020 do
   alias Advent2020.PortSystem
   alias Advent2020.PortSystemV2
   alias Advent2020.SeatSim
+  alias Advent2020.TrainTickets
   alias Advent2020.Utilities
   alias Advent2020.Xmas
 
@@ -476,5 +477,29 @@ defmodule Advent2020 do
     |> PortSystemV2.init()
     |> Enum.map(fn {_, x} -> x end)
     |> Enum.sum()
+  end
+
+  def day16_1() do
+    TrainTickets.parse("../data/day16_1.txt")
+    |> (fn {rules, _, nearby_tickets} ->
+          TrainTickets.check_all_tickets(nearby_tickets, rules)
+        end).()
+    |> (fn {_, invalid_vals} -> Enum.sum(invalid_vals) end).()
+  end
+
+  def day16_2() do
+    {rules, your_ticket, nearby_tickets} =
+      TrainTickets.parse("../data/day16_1.txt")
+
+    {pos_valid_rules, _} = TrainTickets.check_all_tickets(nearby_tickets, rules)
+
+    TrainTickets.identify_rules(pos_valid_rules)
+    |> Enum.filter(fn {_, field} ->
+      Atom.to_string(field) |> String.starts_with?("departure")
+    end)
+    |> Enum.map(fn {pos, _} ->
+      Enum.fetch(your_ticket, pos) |> (fn {:ok, v} -> v end).()
+    end)
+    |> Enum.reduce(1, fn x, acc -> acc * x end)
   end
 end
